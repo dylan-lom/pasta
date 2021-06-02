@@ -1,0 +1,44 @@
+.TH PASTA 1 2021-06-02
+.SH NAME
+pasta \- simple ssh pastebin client
+.SH SYNOPSIS
+.B pasta
+[\fB\-p\fR|\fB-c\fR|\fB-g\fR] [\fB-x\fR] \fBfilename\fR
+.SH DESCRIPTION
+.B pasta
+writes content provided over stdin to \fBfilename\fR on remote server via
+pre-configured SSH connection.
+.SH OPTIONS
+.TP
+.BR \-p
+Use import(1) command to take a selection-screenshot, and paste that instead
+of reading stdin.
+.TP
+.BR \-c
+Append to existing file (if it exists).
+.TP
+.BR \-g
+Retrieve contents of file and write to stdout. Does not modify remote file.
+.TP
+.BR \-x
+Use xclip(1) to write remote filepath to clipboard.
+.SH FILES
+.TP 15
+~/.config/pastarc
+Application configuration file.
+.SH EXAMPLE
+Write 'Hello world' to a file called hello.txt
+.PP
+.nf
+.RS
+pasta hello.txt <<< 'Hello world'
+.RE
+.fi
+.PP
+Append 'Wow!' to hello.txt
+.PP
+.nf
+.RS
+pasta -c hello.txt <<< 'Wow!'
+.RE
+.fi
