@@ -21,7 +21,6 @@ firsttimesetup() {
 }
 
 isinstalled() {
-    echo "$PATH"
     command -v "$1" > /dev/null \
         && return 0 \
         || (echo "ERROR: Executable '$1' not found!"; return 1)
@@ -36,17 +35,19 @@ test -f "$configpath" \
     && . "$configpath" \
     || firsttimesetup
 
-while [ "$#" -gt 1 ]; do
-    case "$1" in
-        '-p') png='true'; ;;
-        '-c') concat='true'; ;;
-        '-g') get='true'; ;;
-        '-x') xclip='true'; ;;
+while getopts "pcgx" opt; do
+    case "$opt" in
+        p) png=true ;;
+        c) concat=true ;;
+        g) get=true ;;
+        x) xclip=true ;;
         *) usage ;;
     esac
-    shift
 done
 
+# FIXME: This is kinda lazy and allows things like
+# `pasta -x notused.txt used.txt` to slip through...
+shift "$(($#-1))"
 name="$1"
 [ -z "$name" ] && usage
 
