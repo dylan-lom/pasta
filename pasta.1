@@ -3,11 +3,15 @@
 pasta \- simple ssh pastebin client
 .SH SYNOPSIS
 .B pasta
-[\fB\-p\fR|\fB-c\fR|\fB-g\fR] [\fB-x\fR] \fBfilename\fR
+[\fB\-p\fR|\fB-c\fR|\fB-g\fR] [\fB-x\fR] [\fBfilename\fR]
 .SH DESCRIPTION
 .B pasta
 writes content provided over stdin to \fBfilename\fR on remote server via
 pre-configured SSH connection.
+.PP
+If \fBfilename\fR was not provided, a random 10-character base64 string will be
+used for the filename. If \fB-p\fR was given and \fBfilename\fR was not
+\fB.png\fR will be appended to the random filename.
 .SH OPTIONS
 .TP
 .BR \-p
@@ -40,5 +44,13 @@ Append 'Wow!' to hello.txt
 .nf
 .RS
 pasta -c hello.txt <<< 'Wow!'
+.RE
+.fi
+.PP
+Upload a screenshot with a random filename and copy URL to X11 clipboard
+.PP
+.nf
+.RS
+pasta -xp
 .RE
 .fi

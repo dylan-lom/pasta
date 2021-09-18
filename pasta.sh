@@ -27,7 +27,7 @@ isinstalled() {
 }
 
 usage() {
-	echo "usage: $argv0 [-p|-c|-g] [-x] filename" > /dev/stderr
+	echo "usage: $argv0 [-p|-c|-g] [-x] [filename]" > /dev/stderr
 	exit 1
 }
 
@@ -45,10 +45,16 @@ while getopts "pcgx" opt; do
     esac
 done
 
-# FIXME: This is kinda lazy and allows things like
-# `pasta -x notused.txt used.txt` to slip through...
-shift "$(($#-1))"
-name="$1"
+# shift past all options to the [filename] part of args
+shift "$(($OPTIND-1))"
+if [ "$#" = 0 ]; then
+    # Filename was not provided, generate a random one
+    name="$(base64 < /dev/urandom | head -c10)"
+    truthy "$png" && name="$name.png"
+else
+    name="$1"
+fi
+
 [ -z "$name" ] && usage
 
 if truthy "$xclip"; then
