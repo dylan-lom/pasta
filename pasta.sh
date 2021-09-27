@@ -6,11 +6,28 @@
 configpath="$HOME/.config/pastarc"
 argv0="$0"
 
+# TODO: There are a number of not-great things about the config setup at the moment
+#       - No default values
+#       - No validation of values (ie. a way to test options without overwriting)
+#       - No guided way to only modify some of the options
+#       - Seperation between setup and firsttimesetup and checkconfig (ie. multiple fn calls needed)
+
+# checkconfig name value
+checkconfig() {
+    if [ -z "$2" ]; then
+        echo "Invalid option '$1' in config file $configpath. Please manually update the config file, or remove it and re-run $argv0 for a guided setup." > /dev/stderr
+        exit 1
+    fi
+}
+
 setup() {
-    printf "SSH Domain: "; read sshdomain
-    printf "Remote destination: "; read destpath
-    printf "Remote URL: "; read destdomain
-    printf "sshdomain='$sshdomain'\ndestpath='$destpath'\ndestdomain='$destdomain'\n" > "$configpath"
+    printf "SSH Domain (e.g. user@ssh.example.com): "; read sshdomain
+    printf "Remote destination (e.g. /var/www/paste.example.com): "; read destpath
+    printf "Remote URL (e.g. http://paste.example.com): "; read destdomain
+    printf "Random paste name length (e.g. 5): "; read randomlen
+    confirm "Hide random pastes (prefixes names with '.' character)" && hiderandom="true" || hiderandom="false"
+
+    printf "sshdomain='$sshdomain'\ndestpath='$destpath'\ndestdomain='$destdomain'\nrandomlen='$randomlen'\nhiderandom='$hiderandom'\n" > "$configpath"
 }
 
 firsttimesetup() {
@@ -27,13 +44,20 @@ isinstalled() {
 }
 
 usage() {
-	echo "usage: $argv0 [-p|-c|-g] [-x] [filename]" > /dev/stderr
-	exit 1
+    echo "usage: $argv0 [-p|-c|-g] [-x] [filename]" > /dev/stderr
+    exit 1
 }
 
 test -f "$configpath" \
     && . "$configpath" \
     || firsttimesetup
+
+# Make sure all config is correct
+checkconfig sshdomain "$sshdomain"
+checkconfig destpath "$destpath"
+checkconfig destdomain "$destdomain"
+checkconfig randomlen "$randomlen"
+checkconfig hiderandom "$hiderandom"
 
 while getopts "pcgx" opt; do
     case "$opt" in
@@ -48,8 +72,10 @@ done
 # shift past all options to the [filename] part of args
 shift "$(($OPTIND-1))"
 if [ "$#" = 0 ]; then
-    # Filename was not provided, generate a random one
-    name="$(base64 < /dev/urandom | head -c10)"
+    # Filename was not provided, generate a random one -- making sure not to
+    # accidentally change path with a '/'
+    name="$(base64 < /dev/urandom | head "-c$randomlen" | tr '/' 'A')"
+    truthy "$hiderandom" && name=".$name"
     truthy "$png" && name="$name.png"
 else
     name="$1"
