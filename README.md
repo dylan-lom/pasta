@@ -13,9 +13,10 @@ do a guided configuration of the script.
 
 ### Examples
 
-```
-    $ xclip -o | pasta filename
-    $ pasta -p -x filename.png
+```console
+$ xclip -selection c -o | pasta filename # upload your clipboard
+$ pasta -xp filename.png # take a screenshot with import(1) and upload that
+$ pasta -xp # take a screenshow with import(1) and upload that with a random file name
 ```
 
 
