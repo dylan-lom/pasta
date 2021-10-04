@@ -3,6 +3,21 @@
 # pasta: simple ssh pastebin client
 # author: Dylan Lom <djl@dylanlom.com>
 
+confirm() {
+    test -n "$1" && msg="$1" || msg="Confirm"
+    printf "%s [Y/n]: " "$msg"
+    read resp
+    test -z "$resp" -o "$resp" = "Y" -o "$resp" = "y" \
+        && return 0 \
+        || return 1
+}
+
+truthy() {
+    test -z "$1" -o "$1" = "false" \
+        && return 1 \
+        || return 0
+}
+
 configpath="$HOME/.config/pastarc"
 argv0="$0"
 
