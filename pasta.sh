@@ -3,6 +3,22 @@
 # pasta: simple ssh pastebin client
 # author: Dylan Lom <djl@dylanlom.com>
 
+debugopts() {
+    printf "==== Arguments ====\n"
+    printf "concat: %s\n" "$concat"
+    printf "get: %s\n" "$get"
+    printf "png: %s\n" "$png"
+    printf "mirror: %s\n" "$mirror"
+    printf "xclip: %s\n" "$xclip"
+    printf "name: %s\n" "$name"
+    printf "==== Options ======\n"
+    printf "sshdomain: %s\n" "$sshdomain"
+    printf "destpath: %s\n" "$destpath"
+    printf "destdomain: %s\n" "$destdomain"
+    printf "randomlen: %s\n" "$randomlen"
+    printf "hiderandom: %s\n" "$hiderandom"
+}
+
 confirm() {
     test -n "$1" && msg="$1" || msg="Confirm"
     printf "%s [Y/n]: " "$msg"
@@ -59,7 +75,7 @@ isinstalled() {
 }
 
 usage() {
-    echo "usage: $argv0 [-p|-c|-g] [-x] [filename]" > /dev/stderr
+    echo "usage: $argv0 [-c|-g|-m <url>|-p] [-x] [filename]" > /dev/stderr
     exit 1
 }
 
@@ -74,11 +90,12 @@ checkconfig destdomain "$destdomain"
 checkconfig randomlen "$randomlen"
 checkconfig hiderandom "$hiderandom"
 
-while getopts "pcgx" opt; do
+while getopts "cgm:px" opt; do
     case "$opt" in
-        p) png=true ;;
         c) concat=true ;;
         g) get=true ;;
+        m) mirror="$OPTARG" ;;
+        p) png=true ;;
         x) xclip=true ;;
         *) usage ;;
     esac
@@ -98,6 +115,7 @@ fi
 
 [ -z "$name" ] && usage
 
+
 if truthy "$xclip"; then
     isinstalled xclip || exit 1
 
@@ -113,6 +131,10 @@ fi
 
 if truthy "$concat"; then
    ssh "$sshdomain" "cat >> $destpath/$name"
+elif truthy "$mirror"; then
+   ssh "$sshdomain" "command -v curl > /dev/null \
+        && curl -s $mirror > $destpath/$name \
+        || wget -qO $destpath/$name $mirror"
 else
     isinstalled import || exit 1
     (truthy "$png" && import png:- || cat) | \

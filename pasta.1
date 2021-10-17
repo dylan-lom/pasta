@@ -3,7 +3,7 @@
 pasta \- simple ssh pastebin client
 .SH SYNOPSIS
 .B pasta
-[\fB\-p\fR|\fB-c\fR|\fB-g\fR] [\fB-x\fR] [\fBfilename\fR]
+[\fB-c\fR|\fB-g\fR|\fB-m\fR <url>|\fB\-p\fR] [\fB-x\fR] [\fBfilename\fR]
 .SH DESCRIPTION
 .B pasta
 writes content provided over stdin to \fBfilename\fR on remote server via
@@ -14,15 +14,19 @@ used for the filename. If \fB-p\fR was given and \fBfilename\fR was not
 \fB.png\fR will be appended to the random filename.
 .SH OPTIONS
 .TP
-.BR \-p
-Use import(1) command to take a selection-screenshot, and paste that instead
-of reading stdin.
-.TP
 .BR \-c
 Append to existing file (if it exists).
 .TP
 .BR \-g
 Retrieve contents of file and write to stdout. Does not modify remote file.
+.TP
+.BR \-m\ <url>
+Use curl(1) or wget(1) to upload contents of remote file from \fBurl\fR. Fetch
+is done on SSH server to reduce network usage.
+.TP
+.BR \-p
+Use import(1) command to take a selection-screenshot, and paste that instead
+of reading stdin.
 .TP
 .BR \-x
 Use xclip(1) to write remote filepath to clipboard.
