@@ -133,12 +133,12 @@ if truthy "$concat"; then
    ssh "$sshdomain" "cat >> $destpath/$name"
 elif truthy "$mirror"; then
    ssh "$sshdomain" "command -v curl > /dev/null \
-        && curl -s $mirror > $destpath/$name \
-        || wget -qO $destpath/$name $mirror"
+        && curl -Lso \"$destpath/$name\" \"$mirror\" \
+        || wget -qO \"$destpath/$name\" \"$mirror\""
 else
     isinstalled import || exit 1
     (truthy "$png" && import png:- || cat) | \
-        ssh "$sshdomain" "cat > $destpath/$name"
+        ssh "$sshdomain" "cat > \"$destpath/$name\""
 fi
 
 echo "$destdomain/$name"
