@@ -3,7 +3,7 @@
 pasta \- simple ssh pastebin client
 .SH SYNOPSIS
 .B pasta
-[\fB-c\fR|\fB-g\fR|\fB-m\fR <url>|\fB\-p\fR] [\fB-x\fR] [\fBfilename\fR]
+[\fB-c\fR|\fB-g\fR|\fB-m\fR <url>|\fB\-p\fR|\fB\-R\fR] [\fB-x\fR] [\fBfilename\fR]
 .SH DESCRIPTION
 .B pasta
 writes content provided over stdin to \fBfilename\fR on remote server via
@@ -30,6 +30,9 @@ of reading stdin.
 .TP
 .BR \-x
 Use xclip(1) to write remote filepath to clipboard.
+.TP
+.BR \-R
+Adjust configuration
 .SH FILES
 .TP 15
 ~/.config/pastarc

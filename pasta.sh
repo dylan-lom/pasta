@@ -82,7 +82,7 @@ isinstalled() {
 }
 
 usage() {
-    echo "usage: $argv0 [-c|-g|-m <url>|-p] [-x] [filename]" > /dev/stderr
+    echo "usage: $argv0 [-c|-g|-m <url>|-p|-R] [-x] [filename]" > /dev/stderr
     exit 1
 }
 
@@ -99,13 +99,14 @@ for opt in sshdomain destpath destdomain randomlen hiderandom; do
     fi
 done
 
-while getopts "cgm:px" opt; do
+while getopts "cgm:pxR" opt; do
     case "$opt" in
         c) concat=true ;;
         g) get=true ;;
         m) mirror="$OPTARG" ;;
         p) png=true ;;
         x) xclip=true ;;
+        R) setup; exit 0 ;;
         *) usage ;;
     esac
 done
