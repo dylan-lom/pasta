@@ -20,6 +20,15 @@ $ pasta -xp # take a screenshow with import(1) and upload that with a random fil
 $ pasta -xm https://raw.githubusercontent.com/dylan-lom/pasta/main/README.md README.md # mirror README.md file from github
 ```
 
+## Installation
+
+```
+cp pasta.sh ~/bin/pasta
+manpath="$HOME/.local/share/man/man1"
+mkdir -p $manpath
+export MANPATH="$MANPATH:$manpath"
+cp pasta.1 "$manpath"
+```
 
 ## References
 
