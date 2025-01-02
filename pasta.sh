@@ -34,38 +34,45 @@ truthy() {
         || return 0
 }
 
+echon() {
+    echo "$@" | tr -d '\n'
+}
+
 configpath="$HOME/.config/pastarc"
 argv0="$0"
 
-# TODO: There are a number of not-great things about the config setup at the moment
-#       - No default values
-#       - No validation of values (ie. a way to test options without overwriting)
-#       - No guided way to only modify some of the options
-#       - Seperation between setup and firsttimesetup and checkconfig (ie. multiple fn calls needed)
+reconfigure() {
+    opt="$1"
+    desc="$2"
+    val=`eval echo '$'$opt`
 
-# checkconfig name value
-checkconfig() {
-    if [ -z "$2" ]; then
-        echo "Invalid option '$1' in config file $configpath. Please manually update the config file, or remove it and re-run $argv0 for a guided setup." > /dev/stderr
-        exit 1
+    echon "$desc"
+    test -z "$val" || echon " [$val]"
+    echon ": "
+
+    read "$opt"
+    newval=`eval echo '$'$opt`
+    if [ -z $newval ]; then
+        eval $opt=$val
     fi
 }
 
 setup() {
-    printf "SSH Domain (e.g. user@ssh.example.com): "; read sshdomain
-    printf "Remote destination (e.g. /var/www/paste.example.com): "; read destpath
-    printf "Remote URL (e.g. http://paste.example.com): "; read destdomain
-    printf "Random paste name length (e.g. 5): "; read randomlen
-    confirm "Hide random pastes (prefixes names with '.' character)" && hiderandom="true" || hiderandom="false"
+    reconfigure "sshdomain" "SSH Domain"
+    reconfigure "destpath" "Remote destination"
+    reconfigure "destdomain" "Hosted content location"
+    reconfigure "randomlen" "Random filename length"
+    confirm "Hide random pastes (prefixes names with '.' character)" \
+        && hiderandom="true" \
+        || hiderandom="false"
 
-    printf "sshdomain='$sshdomain'\ndestpath='$destpath'\ndestdomain='$destdomain'\nrandomlen='$randomlen'\nhiderandom='$hiderandom'\n" > "$configpath"
-}
-
-firsttimesetup() {
-    echo "Configuration file ($configpath) not found!"
-    confirm "Create?" || exit
-    test -d ~/.config || mkdir -p ~/.config
-    setup
+    cat << EOF > "$configpath"
+    sshdomain="$sshdomain"
+    destpath="$destpath"
+    destdomain="$destdomain"
+    randomlen="$randomlen"
+    hiderandom="$hiderandom"
+EOF
 }
 
 isinstalled() {
@@ -79,16 +86,18 @@ usage() {
     exit 1
 }
 
-test -f "$configpath" \
-    && . "$configpath" \
-    || firsttimesetup
+if [ -f "$configpath" ]; then
+    . "$configpath"
+fi
 
-# Make sure all config is correct
-checkconfig sshdomain "$sshdomain"
-checkconfig destpath "$destpath"
-checkconfig destdomain "$destdomain"
-checkconfig randomlen "$randomlen"
-checkconfig hiderandom "$hiderandom"
+# Validate configuration
+for opt in sshdomain destpath destdomain randomlen hiderandom; do
+    if [ -z `eval echo '$'$opt` ]; then
+        echo "Invalid configuration file ($configpath), please follow prompts to fix, and re-run command!" > /dev/stderr
+        setup
+        exit 1
+    fi
+done
 
 while getopts "cgm:px" opt; do
     case "$opt" in
